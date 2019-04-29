@@ -1167,7 +1167,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	else {
 		retval = -EINVAL;
 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
-				policy != SCHED_OTHER)
+				policy != SCHED_OTHER && policy != SCHED_OTHER)	//added SCHED_OTHER (HW2)
 			goto out_unlock;
 	}
 
@@ -1193,12 +1193,23 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	if (array)
 		deactivate_task(p, task_rq(p));
 	retval = 0;
+
+///////////////////////HW2///////////////////////////////////////////
+	if((p->policy == SCHED_SHORT) ||
+			((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
+		goto out_unlock;
+	}
+
+//////////////////////////////////////////////////////////////////////
 	p->policy = policy;
-	p->rt_priority = lp.sched_priority;
-	if (policy != SCHED_OTHER)
+	p->rt_priority = lp.sched_priority;		//HW2 -do we need to update short proc. differently?
+	if (policy != SCHED_OTHER && policy != SCHED_SHORT)
 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-	else
+	else if(policy != SCHED_SHORT) {
 		p->prio = p->static_prio;
+	}
+	else									//HW2 pdate
+		p->prio = lp.sched_short_prio;
 	if (array)
 		activate_task(p, task_rq(p));
 
@@ -1256,6 +1267,10 @@ asmlinkage long sys_sched_getparam(pid_t pid, struct sched_param *param)
 	if (!p)
 		goto out_unlock;
 	lp.sched_priority = p->rt_priority;
+	lp.requested_time = p->requested_time;
+	if(p->policy == SCHED_SHORT) {			//HW2
+		lp.sched_short_prio = p->prio;
+	}
 	read_unlock(&tasklist_lock);
 
 	/*

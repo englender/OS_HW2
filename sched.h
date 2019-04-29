@@ -343,6 +343,7 @@ struct task_struct {
 	 */
 	unsigned int cpu;
 	int prio, static_prio;
+	unsigned int requested_time;		//HW2
 	list_t run_list;
 	prio_array_t *array;
 
@@ -559,6 +560,7 @@ extern struct exec_domain	default_exec_domain;
     blocked:		{{0}},						\
     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
     journal_info:	NULL,						\
+    requested_time	-1,							\
 }
 
 
