@@ -138,7 +138,7 @@ struct runqueue {
 	unsigned long nr_running, nr_switches, expired_timestamp;
 	signed long nr_uninterruptible;
 	task_t *curr, *idle;
-	prio_array_t *active, *expired, arrays[2];
+	prio_array_t *active, *expired, *short_array, arrays[3];		//HW2 - do we need to add array for short? and change arrays to 3?
 	int prev_nr_running[NR_CPUS];
 	task_t *migration_thread;
 	list_t migration_queue;
@@ -1037,6 +1037,10 @@ void set_user_nice(task_t *p, long nice)
 	prio_array_t *array;
 	runqueue_t *rq;
 
+///////////////////////////////////HW2///////////////////////////////////////
+	if(p->policy == SCHED_SHORT)
+		return;
+////////////////////////////////////////////////////////////////////////////
 	if (TASK_NICE(p) == nice || nice < -20 || nice > 19)
 		return;
 	/*
@@ -1267,7 +1271,7 @@ asmlinkage long sys_sched_getparam(pid_t pid, struct sched_param *param)
 	if (!p)
 		goto out_unlock;
 	lp.sched_priority = p->rt_priority;
-	lp.requested_time = p->requested_time;
+	lp.requested_time = p->requested_time;	//HW2
 	if(p->policy == SCHED_SHORT) {			//HW2
 		lp.sched_short_prio = p->prio;
 	}
@@ -1638,10 +1642,11 @@ void __init sched_init(void)
 		rq = cpu_rq(i);
 		rq->active = rq->arrays;
 		rq->expired = rq->arrays + 1;
+		rq->short_array = rq->arrays +2;		//HW2 add
 		spin_lock_init(&rq->lock);
 		INIT_LIST_HEAD(&rq->migration_queue);
 
-		for (j = 0; j < 2; j++) {
+		for (j = 0; j < 3; j++) {		//HW2 change - loop condition until 3 instead of 2
 			array = rq->arrays + j;
 			for (k = 0; k < MAX_PRIO; k++) {
 				INIT_LIST_HEAD(array->queue + k);
