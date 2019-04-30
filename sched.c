@@ -376,7 +376,15 @@ repeat_lock_task:
 		/*
 		 * If sync is set, a resched_task() is a NOOP
 		 */
-		if (p->prio < rq->curr->prio)
+/////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////////////
+		if(rq->curr->policy==SCHED_OTHER && p->policy==SCHED_SHORT)
+			resched_task(rq->curr);
+		else if(rq->curr->policy==SCHED_SHORT && (p->policy==SCHED_FIFO || p->policy==SCHED_RR)
+			resched_task(rq->curr);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		else if (p->prio < rq->curr->prio)					//update HW2
 			resched_task(rq->curr);
 		success = 1;
 	}
