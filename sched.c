@@ -379,11 +379,11 @@ repeat_lock_task:
 /////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////////////
 		if(rq->curr->policy==SCHED_OTHER && p->policy==SCHED_SHORT)
 			resched_task(rq->curr);
-		else if(rq->curr->policy==SCHED_SHORT && (p->policy==SCHED_FIFO || p->policy==SCHED_RR)
+		else if(rq->curr->policy==SCHED_SHORT && (p->policy==SCHED_FIFO || p->policy==SCHED_RR))
 			resched_task(rq->curr);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//https://piazza.com/class/jo64782dcdv4xs?cid=169  --  PIAZZA
 		else if (p->prio < rq->curr->prio)					//update HW2
 			resched_task(rq->curr);
 		success = 1;
@@ -1179,7 +1179,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	else {
 		retval = -EINVAL;
 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
-				policy != SCHED_OTHER && policy != SCHED_SHORT)	//added SCHED_SHORT (HW2)
+				policy != SCHED_OTHER && policy != SCHED_SHORT)			//added SCHED_SHORT (HW2)
 			goto out_unlock;
 	}
 
@@ -1203,7 +1203,8 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 
 /////////////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////
 	//update: function set_schedular should operate normally but not unable to change policy (HW page 5, 4th bullet)
-	if((p->policy == SCHED_SHORT || p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT){
+	if(p->policy == SCHED_SHORT || ((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
+		retval = -EPREM;
 		goto out_unlock;
 	}
 	if(policy == SCHED_SHORT && (lp.requested_time < 1 || lp.requested_time > 3000)){
