@@ -1171,7 +1171,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	else {
 		retval = -EINVAL;
 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
-				policy != SCHED_OTHER && policy != SCHED_OTHER)	//added SCHED_OTHER (HW2)
+				policy != SCHED_OTHER && policy != SCHED_SHORT)	//added SCHED_SHORT (HW2)
 			goto out_unlock;
 	}
 
@@ -1193,27 +1193,33 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	    !capable(CAP_SYS_NICE))
 		goto out_unlock;
 
+/////////////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////
+	//update: function set_schedular should operate normally but not unable to change policy (HW page 5, 4th bullet)
+	if((p->policy == SCHED_SHORT || p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT){
+		goto out_unlock;
+	}
+	if(policy == SCHED_SHORT && (lp.requested_time < 1 || lp.requested_time > 3000)){
+		retval = -EINVAL;
+		goto out_unlock;
+	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	array = p->array;
 	if (array)
 		deactivate_task(p, task_rq(p));
 	retval = 0;
 
-///////////////////////HW2///////////////////////////////////////////
-	if((p->policy == SCHED_SHORT) ||
-			((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
-		goto out_unlock;
-	}
-
-//////////////////////////////////////////////////////////////////////
 	p->policy = policy;
-	p->rt_priority = lp.sched_priority;		//HW2 -do we need to update short proc. differently?
+	p->rt_priority = lp.sched_priority;						//HW2 -do we need to update short proc. differently?
 	if (policy != SCHED_OTHER && policy != SCHED_SHORT)
 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
 	else if(policy != SCHED_SHORT) {
 		p->prio = p->static_prio;
 	}
-	else									//HW2 pdate
+	else													//HW2 update
 		p->prio = lp.sched_short_prio;
+
 	if (array)
 		activate_task(p, task_rq(p));
 
