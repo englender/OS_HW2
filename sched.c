@@ -785,7 +785,17 @@ void scheduler_tick(int user_tick, int system)
 	if (p->sleep_avg)
 		p->sleep_avg--;
 	if (!--p->time_slice) {
-		dequeue_task(p, rq->active);
+//////////////////////////////////////HW2 - NEED TO CHECK IF IN THE CORRECT PLACE (PENALTIES)///////////////////////////
+		if (p->policy == SCHED_SHORT){
+			dequeue_task(p, rq->short_array);
+			p->policy=SCHED_OTHER; 					// check if need to call set_scheduler instead!
+			p->static_prio+=7;
+			if(p->static_prio > (MAX_PRIO-1))
+				p->static_prio=(MAX_PRIO-1);
+			p->sleep_avg=0.5*MAX_SLEEP_AVG;
+		}else
+			dequeue_task(p, rq->active);			// Original code (without else)
+//////////////////////////////////////HW2 - NEED TO CHECK IF IN THE CORRECT PLACE (PENALTIES)///////////////////////////
 		set_tsk_need_resched(p);
 		p->prio = effective_prio(p);
 		p->first_time_slice = 0;
