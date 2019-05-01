@@ -230,6 +230,12 @@ static inline int effective_prio(task_t *p)
 {
 	int bonus, prio;
 
+//////////////////////////////////////////////////////HW2///////////////////////////////////////////////////////////////
+	//if the proccess is a SHORT process we dont change the prio according to the sleep average
+	if (p->policy==SCHED_SHORT)
+		return p->prio;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/*
 	 * Here we scale the actual sleep average [0 .... MAX_SLEEP_AVG]
 	 * into the -5 ... 0 ... +5 bonus/penalty range.
