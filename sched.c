@@ -261,7 +261,13 @@ static inline int effective_prio(task_t *p)
 static inline void activate_task(task_t *p, runqueue_t *rq)
 {
 	unsigned long sleep_time = jiffies - p->sleep_timestamp;
-	prio_array_t *array = rq->active;
+
+////////////////////////////HW2///////////////////////////////////////////
+    if(p->policy == SCHED_SHORT){
+        prio_array_t *array = rq->short_array;
+    } else
+        prio_array_t *array = rq->active;       //HW2 - original code without else
+///////////////////////////////////////////////////////////////////////////
 
 	if (!rt_task(p) && sleep_time) {
 		/*
@@ -277,7 +283,7 @@ static inline void activate_task(task_t *p, runqueue_t *rq)
 		p->prio = effective_prio(p);
 	}
 	enqueue_task(p, array);
-	rq->nr_running++;
+	rq->nr_running++;           //HW2 Q - should we change this?
 }
 
 static inline void deactivate_task(struct task_struct *p, runqueue_t *rq)
@@ -1106,6 +1112,9 @@ asmlinkage long sys_nice(int increment)
 {
 	long nice;
 
+    if(current->policy == SCHED_SHORT){
+        return -EPERM;
+    }
 	/*
 	 *	Setpriority might change our priority at the same moment.
 	 *	We don't have to worry. Conceptually one call occurs first
@@ -1139,7 +1148,11 @@ asmlinkage long sys_nice(int increment)
  */
 int task_prio(task_t *p)
 {
-	return p->prio - MAX_USER_RT_PRIO;
+//////////////////////////HW2///////////////////////////////////////////////////
+    if(p->policy == SCHED_SHORT)
+        return p->prio;
+////////////////////////////////////////////////////////////////////////////////
+    return p->prio - MAX_USER_RT_PRIO;
 }
 
 int task_nice(task_t *p)
@@ -1218,7 +1231,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 		goto out_unlock;
 
 /////////////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////
-	//update: function set_schedular should operate normally but not unable to change policy (HW page 5, 4th bullet)
+	//update: function setscheduler should operate normally but not unable to change policy (HW page 5, 4th bullet)
 	if(p->policy == SCHED_SHORT || ((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
 		retval = -EPREM;
 		goto out_unlock;
