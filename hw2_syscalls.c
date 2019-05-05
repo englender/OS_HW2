@@ -3,9 +3,11 @@
 //
 #include <sys/types.h>
 
+#define MAX_PRIO 140
+
 int is_short(pid_t pid){
 
-    if(pid<0){            //roni - should we check for this?
+    if(pid<0){
         return -ESRCH;
     }
     task_t* p=find_task_by_pid(pid);
@@ -20,7 +22,7 @@ int is_short(pid_t pid){
 
 int short_remaining_time(pid_t pid){
 
-    if(pid<0){            //roni - should we check for this?
+    if(pid<0){
         return -ESRCH;
     }
     task_t* p=find_task_by_pid(pid);
@@ -34,4 +36,27 @@ int short_remaining_time(pid_t pid){
 
 int short_place_in_queue(pid_t pid){
 
+    if(pid<0){
+        return -ESRCH;
+    }
+    task_t* p=find_task_by_pid(pid);
+    if(p == NULL){
+        return -ESRCH;
+    }
+    if(p->policy != SCHED_SHORT)
+        return -EINVAL;
+
+    int index=0, count=0;
+    for (int index = 0; index <MAX_PRIO; index++) {
+        list_t *ptr;
+        list_t *head;
+        head = rq->short_array;
+        list_for_each(ptr, &head){
+            if (list_entry(ptr, task_t, run_list)->pid == pid){
+                return count;
+            }
+            count++;
+        }
+    }
+    return -EINVAL;
 }
