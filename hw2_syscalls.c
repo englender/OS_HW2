@@ -5,9 +5,9 @@
 
 int is_short(pid_t pid){
 
-//    if(pid<0){            //roni - should we check for this?
-//        return -ESRCH;
-//    }
+    if(pid<0){            //roni - should we check for this?
+        return -ESRCH;
+    }
     task_t* p=find_task_by_pid(pid);
     if(p == NULL){
         return -ESRCH;
@@ -20,16 +20,16 @@ int is_short(pid_t pid){
 
 int short_remaining_time(pid_t pid){
 
-//    if(pid<0){            //roni - should we check for this?
-//        return -ESRCH;
-//    }
+    if(pid<0){            //roni - should we check for this?
+        return -ESRCH;
+    }
     task_t* p=find_task_by_pid(pid);
     if(p == NULL){
         return -ESRCH;
     }
     if(p->policy != SCHED_SHORT)
         return -EINVAL;
-    return (p->requested_time)*HZ/1000;
+    return (p->time_slice)*HZ/1000;
 }
 
 int short_place_in_queue(pid_t pid){
