@@ -262,11 +262,12 @@ static inline void activate_task(task_t *p, runqueue_t *rq)
 {
 	unsigned long sleep_time = jiffies - p->sleep_timestamp;
 
+    prio_array_t *array;
 ////////////////////////////HW2///////////////////////////////////////////
     if(p->policy == SCHED_SHORT){
-        prio_array_t *array = rq->short_array;
+        array = rq->short_array;
     } else
-        prio_array_t *array = rq->active;       //HW2 - original code without else
+        array = rq->active;       //HW2 - original code without else
 ///////////////////////////////////////////////////////////////////////////
 
 	if (!rt_task(p) && sleep_time) {
@@ -1233,7 +1234,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 /////////////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////
 	//update: function setscheduler should operate normally but not unable to change policy (HW page 5, 4th bullet)
 	if(p->policy == SCHED_SHORT || ((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
-		retval = -EPREM;
+		retval = -EPERM;
 		goto out_unlock;
 	}
 	if(policy == SCHED_SHORT && (lp.requested_time < 1 || lp.requested_time > 3000)){
