@@ -50,7 +50,7 @@ int short_place_in_queue(pid_t pid){
     for (int index = 0; index <MAX_PRIO; index++) {
         list_t *ptr;
         list_t *head;
-        head = rq->short_array;
+        head = rq->short_array+index;
         list_for_each(ptr, &head){
             if (list_entry(ptr, task_t, run_list)->pid == pid){
                 return count;
