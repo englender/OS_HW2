@@ -446,7 +446,8 @@ void sched_exit(task_t * p)
 {
 	__cli();
 	if (p->first_time_slice) {
-		current->time_slice += p->time_slice;
+		if(p->policy != SCHED_SHORT)
+			current->time_slice += p->time_slice;
 		if (unlikely(current->time_slice > MAX_TIMESLICE))
 			current->time_slice = MAX_TIMESLICE;
 	}
@@ -760,7 +761,7 @@ void scheduler_tick(int user_tick, int system)
 	kstat.per_cpu_system[cpu] += system;
 
 	/* Task might have expired already, but not scheduled off yet */
-	if (p->array != rq->active) {
+	if (p->array == rq->expired) {					//HW2
 		set_tsk_need_resched(p);
 		return;
 	}

@@ -230,6 +230,7 @@ void test9() {
 	int pid = fork();
 	if (pid) {
 		assertTest(sched_setscheduler(pid, SCHED_SHORT, &param1) == 0);
+		printf("CHECK!!!!\n");
 		wait_for_all_sons();
 	} else {exit(0);}
 	assertTest(errno = EINVAL);
