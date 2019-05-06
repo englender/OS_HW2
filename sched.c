@@ -1238,7 +1238,8 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 		retval = -EPERM;
 		goto out_unlock;
 	}
-	if(policy == SCHED_SHORT && (lp.requested_time < 1 || lp.requested_time > 3000)){
+	if(policy == SCHED_SHORT && (lp.requested_time < 1 || lp.requested_time > 3000)
+								|| lp.sched_short_prio < 0 || lp.sched_short_prio > 139){
 		retval = -EINVAL;
 		goto out_unlock;
 	}

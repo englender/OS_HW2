@@ -596,6 +596,11 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 		return -EINVAL;
 
 	retval = -EPERM;
+/////////////////////HW2///////////////////////////////////////////////////////
+	if(p->policy == SCHED_SHORT) {
+		goto fork_out;
+	}
+///////////////////////////////////////////////////////////////////////////////
 
 	/* 
 	 * CLONE_PID is only allowed for the initial SMP swapper
@@ -613,12 +618,6 @@ int do_fork(unsigned long clone_flags, unsigned long stack_start,
 
 	*p = *current;
 
-/////////////////////HW2///////////////////////////////////////////////////////
-	if(p->policy == SCHED_SHORT) {
-		retval = -EPERM;
-		goto fork_out;
-	}
-///////////////////////////////////////////////////////////////////////////////
 	p->tux_info = NULL;
 	p->cpus_allowed_mask &= p->cpus_allowed;
 

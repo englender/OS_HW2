@@ -192,25 +192,41 @@ void test8() {
 }
 
 void test9() {
+	printf("CHECK1\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param9) == -1);
-	assertTest(errno == EINVAL);	
-	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param9) == -1);
+	printf("CHECK2\n");
 	assertTest(errno == EINVAL);
+	printf("CHECK3\n");
+	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param9) == -1);
+	printf("CHECK4\n");
+	assertTest(errno == EINVAL);
+	printf("CHECK5\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param10) == -1);
+	printf("CHECK6\n");
 	assertTest(errno == EINVAL);
+	printf("CHECK7\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param11) == -1);
+	printf("CHECK8\n");
 	assertTest(errno == EINVAL);
+	printf("CHECK9\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param12) == -1);
+	printf("CHECK10\n");
 	assertTest(errno == EINVAL);
+	printf("CHECK11\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param13) == -1);
+	printf("CHECK12\n");
 	assertTest(errno == EINVAL);
-	
+	printf("CHECK13\n");
 	assertTest(sched_setscheduler(-1, SCHED_SHORT, &param1) == -1);
+	printf("CHECK14\n");
 	assertTest(errno = EINVAL);
+	printf("CHECK15\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT+1, &param1) == -1);
+	printf("CHECK16\n");
 	assertTest(errno = EINVAL);
+	printf("CHECK17\n");
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, NULL) == -1);
-	
+	printf("CHECK18\n");
 	int pid = fork();
 	if (pid) {
 		assertTest(sched_setscheduler(pid, SCHED_SHORT, &param1) == 0);
@@ -790,14 +806,14 @@ int main() {
 	printf("Starting tests!\n");
 	printf("--------------------------------\n");
 	
-	forkAndTest(test1);
-	forkAndTest(test2);
-	forkAndTest(test3);
-	forkAndTest(test4);
-	forkAndTest(test5);
-	forkAndTest(test6);
-	forkAndTest(test7);
-	forkAndTest(test8);
+//	forkAndTest(test1);
+//	forkAndTest(test2);
+//	forkAndTest(test3);
+//	forkAndTest(test4);
+//	forkAndTest(test5);
+//	forkAndTest(test6);
+//	forkAndTest(test7);
+//	forkAndTest(test8);
 	forkAndTest(test9);
 	forkAndTest(test10);
 	forkAndTest(test11);
