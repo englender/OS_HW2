@@ -1,9 +1,11 @@
 //
 // Created by ronien on 05/05/2019.
 //
-#include <sys/types.h>
+//#include <sys/types.h>
+#include <linux/sched.h>
 
-#define MAX_PRIO 140
+
+//#define MAX_PRIO 139
 
 int is_short(pid_t pid){
 
@@ -46,14 +48,16 @@ int short_place_in_queue(pid_t pid){
     if(p->policy != SCHED_SHORT)
         return -EINVAL;
 
-    int index=0, count=0;
+    int index, count=0;
     list_t *ptr;
-    list_t *head;
+    runqueue_t *rq = this_rq();
+    list_t *head = rq->short_array->queue;
+//    prio_array_t *shrt=rq->short_array;
 
-    for (int index = 0; index <MAX_PRIO; index++) {
-        head = rq->short_array->queue+index;
+    for (index = 0; index <MAX_PRIO; index++) {
+        list_t *curr  = head + index;
 
-        list_for_each(ptr, head){
+        list_for_each(ptr, curr){
             if (list_entry(ptr, task_t, run_list)->pid == pid){
                 return count;
             }

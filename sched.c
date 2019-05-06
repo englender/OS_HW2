@@ -1220,7 +1220,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	retval = -EINVAL;
 	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
 		goto out_unlock;
-	if ((policy == SCHED_OTHER) != (lp.sched_priority == 0))
+	if ((policy == SCHED_OTHER || policy == SCHED_SHORT) != (lp.sched_priority == 0))
 		goto out_unlock;
 
 	retval = -EPERM;
@@ -1233,7 +1233,7 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 
 /////////////////////////////////////////////////////////////HW2////////////////////////////////////////////////////////
 	//update: function setscheduler should operate normally but not unable to change policy (HW page 5, 4th bullet)
-	if(p->policy == SCHED_SHORT || ((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
+    if(p->policy == SCHED_SHORT || ((p->policy == SCHED_RR || p->policy == SCHED_FIFO) && policy == SCHED_SHORT)){
 		retval = -EPERM;
 		goto out_unlock;
 	}
@@ -1721,6 +1721,71 @@ void __init sched_init(void)
 	atomic_inc(&init_mm.mm_count);
 	enter_lazy_tlb(&init_mm, current, smp_processor_id());
 }
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////HW2/////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+int sys_is_short(pid_t pid){
+
+    if(pid<0){
+        return -ESRCH;
+    }
+    task_t* p=find_task_by_pid(pid);
+    if(p == NULL){
+        return -ESRCH;
+    }
+    if(p->policy == SCHED_SHORT)
+        return 1;
+
+    return 0;
+}
+
+int sys_short_remaining_time(pid_t pid){
+
+    if(pid<0){
+        return -ESRCH;
+    }
+    task_t* p=find_task_by_pid(pid);
+    if(p == NULL){
+        return -ESRCH;
+    }
+    if(p->policy != SCHED_SHORT)
+        return -EINVAL;
+    return (p->time_slice)*HZ/1000;
+}
+
+int sys_short_place_in_queue(pid_t pid){
+
+    if(pid<0){
+        return -ESRCH;
+    }
+    task_t* p=find_task_by_pid(pid);
+    if(p == NULL){
+        return -ESRCH;
+    }
+    if(p->policy != SCHED_SHORT)
+        return -EINVAL;
+
+    int index, count=0;
+    list_t *ptr;
+    list_t *head = this_rq()->short_array->queue;
+    for (index = 0; index <MAX_PRIO; index++) {
+        list_t *curr  = head + index;
+
+        list_for_each(ptr, curr){
+            if (list_entry(ptr, task_t, run_list)->pid == pid){
+                return count;
+            }
+            count++;
+        }
+    }
+    return -EINVAL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////HW2/////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 #if CONFIG_SMP
 
