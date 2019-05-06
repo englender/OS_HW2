@@ -1220,8 +1220,11 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	retval = -EINVAL;
 	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
 		goto out_unlock;
-	if ((policy == SCHED_OTHER || policy == SCHED_SHORT) != (lp.sched_priority == 0))
-		goto out_unlock;
+	if ((policy == SCHED_OTHER || policy == SCHED_SHORT) != (lp.sched_priority == 0)) {
+        if(policy == SCHED_SHORT)
+            retval = -EPERM;
+        goto out_unlock;
+    }
 
 	retval = -EPERM;
 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
