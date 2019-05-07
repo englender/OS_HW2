@@ -1272,6 +1272,10 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
             p->time_slice=1;
 	}
 
+	if(policy == SCHED_SHORT && ((current->policy == SCHED_SHORT && current->prio > p->prio)
+		||current->policy == SCHED_OTHER)){
+		set_tsk_need_resched(current);
+	}
 
 	if (array)
 		activate_task(p, task_rq(p));
@@ -1784,9 +1788,11 @@ int sys_short_place_in_queue(pid_t pid){
     list_t *head = this_rq()->short_array->queue;
     for (index = 0; index <MAX_PRIO; index++) {
         list_t *curr  = head + index;
-
+        if(list_empty(curr))
+            continue;
         list_for_each(ptr, curr){
-            if (list_entry(ptr, task_t, run_list)->pid == pid){
+            task_t* tmp = list_entry(ptr, task_t, run_list);
+            if (tmp->pid == p->pid){
                 return count;
             }
             count++;

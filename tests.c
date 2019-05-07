@@ -501,6 +501,7 @@ void test26() {
 		
 		assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param15) == 0);
 		assertTest(sched_setscheduler(pid, SCHED_SHORT, &param16) == 0);
+//		printf("BLOCK1\n");
 		assertTest(is_short(pid) == 1);
 		wait_for_all_sons();
 		assertTest(short_place_in_queue(getpid()) == 0);
@@ -509,7 +510,11 @@ void test26() {
 		int ppid = getppid();
 		assertTest(is_short(ppid) == 1);
 		assertTest(short_place_in_queue(ppid) == 1);
-		assertTest(is_short(ppid) == 1);
+//		printf("PPID: %d, place in Q: %d \n", ppid, short_place_in_queue(ppid));
+//        printf("ERRNO for father, %d\n", errno);
+//        printf("PID: %d, place in Q: %d \n", getpid(), short_place_in_queue(pid));
+//        printf("ERRNO, %d\n", errno);
+        assertTest(is_short(ppid) == 1);
 		exit(0);
 	}
 }
