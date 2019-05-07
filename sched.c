@@ -1259,7 +1259,8 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 	retval = 0;
 
 	p->policy = policy;
-	p->rt_priority = lp.sched_priority;						//HW2 -do we need to update short proc. differently?
+	p->rt_priority = lp.sched_priority;						     //HW2 -do we need to update short proc. differently?
+	p->requested_time=lp.requested_time;                        //HW2
 	if (policy != SCHED_OTHER && policy != SCHED_SHORT)
 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
 	else if(policy != SCHED_SHORT) {
