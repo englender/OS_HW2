@@ -885,7 +885,7 @@ pick_next_task:
 		array = rq->active;
 		rq->expired_timestamp = 0;
 	}
-
+//////////////////HW2/////////////////////////////////////////////////////////////////////////////////////////////////
 	idx = sched_find_first_bit(array->bitmap);
 	if(idx > MAX_RT_PRIO && rq->short_array->nr_active){
         idx = sched_find_first_bit(rq->short_array->bitmap);
@@ -894,7 +894,7 @@ pick_next_task:
         queue = array->queue + idx;
 
     next = list_entry(queue->next, task_t, run_list);
-
+//////////////////HW2/////////////////////////////////////////////////////////////////////////////////////////////////
 switch_tasks:
 	prefetch(next);
 	clear_tsk_need_resched(prev);
