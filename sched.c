@@ -446,7 +446,7 @@ void sched_exit(task_t * p)
 {
 	__cli();
 	if (p->first_time_slice) {
-		if(p->policy != SCHED_SHORT)
+		if(p->policy != SCHED_SHORT)						//hw2
 			current->time_slice += p->time_slice;
 		if (unlikely(current->time_slice > MAX_TIMESLICE))
 			current->time_slice = MAX_TIMESLICE;
@@ -792,7 +792,7 @@ void scheduler_tick(int user_tick, int system)
 	 */
 	if (p->sleep_avg)
 		p->sleep_avg--;
-	if (!--p->time_slice) {
+	if (--p->time_slice<=0) {
 //////////////////////////////////////HW2 - NEED TO CHECK IF IN THE CORRECT PLACE (PENALTIES)///////////////////////////
 		if (p->policy == SCHED_SHORT){
 			dequeue_task(p, rq->short_array);
@@ -874,6 +874,7 @@ pick_next_task:
 		goto switch_tasks;
 	}
 
+
 	array = rq->active;
 	if (unlikely(!array->nr_active)) {
 		/*
@@ -886,8 +887,13 @@ pick_next_task:
 	}
 
 	idx = sched_find_first_bit(array->bitmap);
-	queue = array->queue + idx;
-	next = list_entry(queue->next, task_t, run_list);
+	if(idx > MAX_RT_PRIO && rq->short_array->nr_active){
+        idx = sched_find_first_bit(rq->short_array->bitmap);
+        queue = rq->short_array->queue + idx;
+	}else
+        queue = array->queue + idx;
+
+    next = list_entry(queue->next, task_t, run_list);
 
 switch_tasks:
 	prefetch(next);
@@ -1258,9 +1264,13 @@ static int setscheduler(pid_t pid, int policy, struct sched_param *param)
 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
 	else if(policy != SCHED_SHORT) {
 		p->prio = p->static_prio;
+	} else {                                                    //HW2 update
+        p->prio = lp.sched_short_prio;
+        p->time_slice=lp.requested_time*HZ/1000;
+        if(p->time_slice==0)
+            p->time_slice=1;
 	}
-	else													//HW2 update
-		p->prio = lp.sched_short_prio;
+
 
 	if (array)
 		activate_task(p, task_rq(p));

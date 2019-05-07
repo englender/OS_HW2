@@ -809,14 +809,14 @@ int main() {
 	printf("Starting tests!\n");
 	printf("--------------------------------\n");
 	
-//	forkAndTest(test1);
-//	forkAndTest(test2);
-//	forkAndTest(test3);
-//	forkAndTest(test4);
-//	forkAndTest(test5);
-//	forkAndTest(test6);
-//	forkAndTest(test7);
-//	forkAndTest(test8);
+	forkAndTest(test1);
+	forkAndTest(test2);
+	forkAndTest(test3);
+	forkAndTest(test4);
+	forkAndTest(test5);
+	forkAndTest(test6);
+	forkAndTest(test7);
+	forkAndTest(test8);
 	forkAndTest(test9);
 	forkAndTest(test10);
 	forkAndTest(test11);
