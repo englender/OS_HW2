@@ -16,7 +16,9 @@
         }\
     } while (0)
 		
-#define wait_for_all_sons() while(wait(NULL) > 0)
+#define wait_for_all_sons() while(wait(NULL) > 0){\
+								printf("WAIT\n");\
+							}
 
 #define forkAndTest(test_function) \
 	do {\
