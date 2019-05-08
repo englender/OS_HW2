@@ -1798,7 +1798,7 @@ int sys_short_place_in_queue(pid_t pid){
             count++;
         }
     }
-    return -EINVAL;
+    return count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

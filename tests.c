@@ -23,10 +23,12 @@
 		int i;\
 		for(i = 0; i < TRIES; ++i) {\
 			if (fork() == 0) {\
-				printf("Starting test: %s\n", #test_function);\
+				printf("Starting test: %s: iteration number %d\n",\
+					#test_function, i+1);\
 				test_function();\
-				printf("Finished test: %s\n", #test_function);\
-				printf("--------------------------------\n");\
+				printf("Finished test: %s: iteration number %d\n",\
+				#test_function, i+1);\
+				printf("-------------------------------------------------\n");\
 				exit(0);\
 			} else {\
 				wait_for_all_sons();\
@@ -34,7 +36,7 @@
 		}\
 	} while(0);
 	
-#define STRESS_LEVEL 500000
+#define STRESS_LEVEL 5000000
 
 #define TRIES 1
 
@@ -115,6 +117,7 @@ void stress_test2() {
 void test1() {
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param1) == 0);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param1) == -1);
+	assertTest(errno == EPERM);		
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param1) == -1);
 	assertTest(errno == EPERM);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param2) == -1);
@@ -193,7 +196,7 @@ void test8() {
 
 void test9() {
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param9) == -1);
-	assertTest(errno == EINVAL);
+	assertTest(errno == EINVAL);	
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param9) == -1);
 	assertTest(errno == EINVAL);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param10) == -1);
@@ -204,11 +207,13 @@ void test9() {
 	assertTest(errno == EINVAL);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param13) == -1);
 	assertTest(errno == EINVAL);
+	
 	assertTest(sched_setscheduler(-1, SCHED_SHORT, &param1) == -1);
 	assertTest(errno = EINVAL);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT+1, &param1) == -1);
 	assertTest(errno = EINVAL);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, NULL) == -1);
+	
 	int pid = fork();
 	if (pid) {
 		assertTest(sched_setscheduler(pid, SCHED_SHORT, &param1) == 0);
@@ -216,7 +221,7 @@ void test9() {
 	} else {exit(0);}
 	assertTest(errno = EINVAL);
 	assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param1) == 0);
-
+						
 }
 
 void test10() {
@@ -501,7 +506,6 @@ void test26() {
 		
 		assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param15) == 0);
 		assertTest(sched_setscheduler(pid, SCHED_SHORT, &param16) == 0);
-//		printf("BLOCK1\n");
 		assertTest(is_short(pid) == 1);
 		wait_for_all_sons();
 		assertTest(short_place_in_queue(getpid()) == 0);
@@ -510,11 +514,7 @@ void test26() {
 		int ppid = getppid();
 		assertTest(is_short(ppid) == 1);
 		assertTest(short_place_in_queue(ppid) == 1);
-//		printf("PPID: %d, place in Q: %d \n", ppid, short_place_in_queue(ppid));
-//        printf("ERRNO for father, %d\n", errno);
-//        printf("PID: %d, place in Q: %d \n", getpid(), short_place_in_queue(pid));
-//        printf("ERRNO, %d\n", errno);
-        assertTest(is_short(ppid) == 1);
+		assertTest(is_short(ppid) == 1);
 		exit(0);
 	}
 }
@@ -722,11 +722,13 @@ void test37(){
         printf("7\n");
         assertTest(short_place_in_queue(son_pid) == 1);
         printf("8\n");
+        fflush(stdout);
         wait(NULL);
     }
     else{
+		while(is_short(getpid()) == 0)
+            sched_yield();
         printf("2\n");
-        assertTest(is_short(getpid()));
         printf("3\n");
         assertTest(!is_short(pid));
         printf("4\n");
@@ -736,6 +738,7 @@ void test37(){
         printf("9\n");
         assertTest(is_short(pid));
         printf("10\n");
+        fflush(stdout);
         exit();
     }
 }
@@ -773,6 +776,8 @@ void test40(){
         assertTest(short_place_in_queue(pid) == 0);
         wait_for_all_sons();
     }else{
+        while(is_short(pid) == 0)
+            sched_yield();
         son_pid2 = fork();
         if(son_pid2){
             assertTest(sched_setscheduler(getpid(),SCHED_SHORT,&param2_guy) == 0);
@@ -780,10 +785,13 @@ void test40(){
             assertTest(sched_setscheduler(son_pid2,SCHED_SHORT,&param1_guy) == 0);
             assertTest(short_place_in_queue(getpid()) == 0);
             assertTest(short_place_in_queue(son_pid2) == 1);
+            wait(NULL);
             exit();
         }
+        while(is_short(getpid()) == 0)
+            sched_yield();
         assertTest(short_place_in_queue(pid) == 0);
-        assertTest(short_place_in_queue(getpid()) == 0);
+        assertTest( short_place_in_queue(getpid()) == 0);
         exit();
     }
 }
