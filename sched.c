@@ -1795,7 +1795,8 @@ int sys_short_place_in_queue(pid_t pid){
             if (tmp->pid == p->pid){
                 return count;
             }
-            count++;
+            if(tmp->prio <= p->prio)
+                count++;
         }
     }
     return count;
