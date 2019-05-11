@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#include <sys/types.h>
+
 #include "hw2_syscalls.h"
 
-#include <sys/resource.#include <sys/types.h>
-h>
+#include <sys/resource.h>
+
 
 #define assertTest(expression)\
     do {\
@@ -1005,13 +1007,14 @@ int main() {
 	
 	forkAndTest(stress_test1);
 	forkAndTest(stress_test2);
-	forkAndTest(test41);
 	
+	forkAndTest(test41);
 	forkAndTest(test42);
 	forkAndTest(test43);
 	forkAndTest(test44);
 	forkAndTest(test45);
 	printf("Finished testing!\n");
+	
 	printf("Don't forget to check for kernel oops with dmesg.\n");
 	return 0;
 }
