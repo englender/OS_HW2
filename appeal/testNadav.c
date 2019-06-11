@@ -41,7 +41,7 @@
 
 #define TRIES 1
 
-
+struct sched_param param0 = {1, 30, 30};
 struct sched_param param1 = {0, 80, 50};
 struct sched_param param2 = {5, 80, 50};
 struct sched_param param3 = {90000, 80, 50};
@@ -117,15 +117,94 @@ void stress_test2() {
 void test0(){
     struct sched_param get_result;
     int pid = getpid();
-    assertTest(sched_setscheduler(pid, SCHED_FIFO, &param1) == 0);
-    assertTest(sched_getparam(pid, &get_result) == 0);
-    assertTest(get_result.sched_priority==0);
-    assertTest(sched_setscheduler(pid, SCHED_RR, &param1) == 0);
-    assertTest(sched_getparam(pid, &get_result) == 0);
-    assertTest(get_result.sched_priority==0);
-    assertTest(sched_setscheduler(pid, SCHED_OTHER, &param1) == 0);
-    assertTest(sched_getparam(pid, &get_result) == 0);
-    assertTest(get_result.sched_priority==0);
+
+//-------------------------STAFF TEST 1---------------------------------//
+    printf("----------------Start test 1-------------------\n");
+
+        assertTest(sched_setscheduler(pid, SCHED_FIFO, &param0) == 0);
+        assertTest(sched_setscheduler(pid, SCHED_RR, &param0) == 0);
+        assertTest(sched_setscheduler(pid, SCHED_OTHER, &param1) == 0);
+
+
+
+
+
+    printf("------------------End test 1-------------------\n");
+
+
+//-------------------------STAFF TEST 2---------------------------------//
+    printf("----------------Start test 8-------------------\n");
+    int pid1, pid2, pid3, pid4, pid5;
+    pid1 = fork();
+    if (pid1) {
+        pid2 = fork();
+        if (pid2) {
+
+            pid3 = fork();
+            if (pid3) {
+
+                pid4 = fork();
+                if (pid4) {
+
+                    pid5 = fork();
+                    if (pid5) {
+                   //     printf("Change to SCHED_RR\n");
+                       // assertTest(sched_setscheduler(pid2, SCHED_RR, &param0) == 0);
+                    //    printf("now changing to short all process\n");
+                        assertTest(sched_setscheduler(getpid(), SCHED_SHORT, &param17) == 0);
+                        assertTest(sched_setscheduler(pid1, SCHED_SHORT, &param18) == 0);
+                        assertTest(sched_setscheduler(pid2, SCHED_SHORT, &param19) == 0);
+                        assertTest(sched_setscheduler(pid3, SCHED_SHORT, &param20) == 0);
+                        assertTest(sched_setscheduler(pid4, SCHED_SHORT, &param23) == 0);
+                        assertTest(sched_setscheduler(pid5, SCHED_SHORT, &param24) == 0);
+
+                        assertTest(short_place_in_queue(pid1) == 2);
+                        assertTest(short_place_in_queue(pid2) == 1);
+                        assertTest(short_place_in_queue(pid3) == 4);
+                        assertTest(short_place_in_queue(getpid()) == 0);
+                        assertTest(short_place_in_queue(pid4) == 3);
+                        assertTest(short_place_in_queue(pid5) == 5);
+
+
+                    }else {
+                        while(is_short(getpid()) == 0);
+                        exit(0);
+                    }
+                }else {
+                    while(is_short(getpid()) == 0);
+                    exit(0);
+                }
+
+            }else {
+                while(is_short(getpid()) == 0);
+                exit(0);
+            }
+        } else {
+            while(is_short(getpid()) == 0);
+            exit(0);
+        }
+
+        wait_for_all_sons();
+        assertTest(short_place_in_queue(pid1) == -1);
+        assertTest(errno == ESRCH);
+        assertTest(short_place_in_queue(pid2) == -1);
+        assertTest(errno == ESRCH);
+        assertTest(short_place_in_queue(pid3) == -1);
+        assertTest(errno == ESRCH);
+        assertTest(short_place_in_queue(pid4) == -1);
+        assertTest(errno == ESRCH);
+        assertTest(short_place_in_queue(pid5) == -1);
+        assertTest(errno == ESRCH);
+        assertTest(short_place_in_queue(getpid()) == 0);
+
+
+    } else {
+        while(is_short(getpid()) == 0);
+ //       assertTest(sched_setscheduler(pid, SCHED_RR, &param0) == 0);
+ //       printf("ERRNO: %d\n", errno);
+        exit(0);
+    }
+    printf("------------------End test 8-------------------\n");
 
 }
 
@@ -817,7 +896,7 @@ int main() {
 	printf("--------------------------------\n");
 
 	forkAndTest(test0);
-/*	forkAndTest(test1);
+	forkAndTest(test1);
 	forkAndTest(test2);
 	forkAndTest(test3);
 	forkAndTest(test4);
@@ -857,10 +936,10 @@ int main() {
 	forkAndTest(test38);
 	forkAndTest(test39);
 	forkAndTest(test40);
-*/
-//	forkAndTest(stress_test1);
-//	forkAndTest(stress_test2);
-	
+
+	forkAndTest(stress_test1);
+	forkAndTest(stress_test2);
+
 	printf("Finished testing!\n");
 	printf("Don't forget to check for kernel oops with dmesg.\n");
 	return 0;
